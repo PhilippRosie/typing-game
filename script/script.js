@@ -61,27 +61,66 @@ let score = 0;
 // Initializing time
 let time = 10;
 
+// difficulty
+let difficulty =
+  localStorage.getItem("difficulty") !== null
+    ? localStorage.getItem("difficulty")
+    : "medium";
+
+// set difficulty select
+difficultySelect.value =
+  localStorage.getItem("difficulty") !== null
+    ? localStorage.getItem("difficulty")
+    : "medium";
+
+// focus text input at start
+text.focus();
+
+//COUNTING DOWN
+const timeInterval = setInterval(updateTime, 1000);
+
+// RANDOM WORDS
 function getRandomWord() {
   return words[Math.floor(Math.random() * words.length)];
   // floor will just round down
   // function to get a random word from our words array
 }
 
+// ADD WORD TO DOM
 function addWordToDOM() {
   randomWord = getRandomWord();
   word.innerHTML = randomWord;
 }
 
+// UPDATE SCORE
 function updateScore() {
   score++;
   scoreEl.innerHTML = score;
+}
+
+// UPDATE TIME
+function updateTime() {
+  time--;
+
+  timeEl.innerHTML = time + "s";
+  if (time === 0) {
+    clearInterval(timeInterval);
+
+    gameOver();
+  }
+}
+
+// GAME OVER
+function gameOver() {
+  endgameEl.innerHTML = `<h1>Time ran out!</h1> <p> Your final score is ${score}</p> <button onClick="location.reload()">Reload</button>`;
+
+  endgameEl.style.display = "flex";
 }
 
 addWordToDOM();
 
 text.addEventListener("input", (event) => {
   const insertedText = event.target.value;
-  console.log(insertedText);
 
   if (insertedText === randomWord) {
     addWordToDOM();
@@ -89,5 +128,28 @@ text.addEventListener("input", (event) => {
     updateScore();
 
     event.target.value = "";
+
+    // Gives you five more seconds when you enter correct word
+    //time += 5;
+
+    if (difficulty === "hard") {
+      time += 2;
+    } else if (difficulty === "medium") {
+      time += 3;
+    } else {
+      time += 5;
+    }
+
+    updateTime();
   }
+});
+
+// SETTINGS BUTTON CLICK
+settingsBtn.addEventListener("click", () => settings.classList.toggle("hide"));
+
+// SETTINGS SELECT
+settingsForm.addEventListener("change", (event) => {
+  difficulty = event.target.value;
+
+  localStorage.setItem("difficulty", difficulty);
 });
